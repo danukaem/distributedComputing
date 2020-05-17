@@ -66,6 +66,16 @@ function onMessageReceived(payload) {
             break;
 
         }
+        case 'Master_Node_BroadCast': {
+            console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            console.log(message)
+            console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            console.log('message.masterNodeId',message.masterNodeIdJson)
+            console.log('message.nodeRole',message.content)
+            masterNodeBroadCast(message);
+            break;
+
+        }
 
     }
 
@@ -136,18 +146,18 @@ function startElectionRequest() {
 }
 
 
-// function masterNodeDetails() {
-//     if (stompClient) {
-//         var chatMessage = {
-//             sender: nodeId,
-//             type: 'MASTER_NODE_DETAILS'
-//         };
-//
-//         stompClient.send("/app/chat.masterNodeDetails", {}, JSON
-//             .stringify(chatMessage));
-//     }
-//     event.preventDefault();
-// }
+function masterNodeBroadCast(message) {
+    if (stompClient) {
+        var chatMessage = {
+            masterNodeIdJson: message.masterNodeIdJson,
+            nodeRole: message.content
+        };
+
+        stompClient.send("/app/chat.masterNodeDataAdding", {}, JSON
+            .stringify(chatMessage));
+    }
+    event.preventDefault();
+}
 
 ////////////////////////////////////sample
 // function httpGet(x) {
@@ -246,17 +256,14 @@ function startElectionRequest() {
 //     xhttp.open("GET", "http://localhost:15672/api/consumers", true, 'guest', 'guest');
 //     xhttp.send();
 // }
-// function testAnyFunction() {
-//
-//     if (stompClient) {
-//         var chatMessage = {
-//             sender: nodeId,
-//             content: document.querySelector('#chatMessage').value,
-//             type: 'CHAT'
-//         };
-//
-//         stompClient.send("/app/chat.nodeCount", {}, JSON
-//             .stringify(chatMessage));
-//     }
-//     event.preventDefault();
-// }
+function testAnyFunction() {
+
+    if (stompClient) {
+        var chatMessage = {
+        };
+
+        stompClient.send("/app/chat.testAnyFunction", {}, JSON
+            .stringify(chatMessage));
+    }
+    event.preventDefault();
+}

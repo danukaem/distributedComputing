@@ -9,21 +9,18 @@ public class WebSocketChatMessage {
     private String type;
     private String content;
     private String sender;
-    public NodeRoleType nodeRole;
+    private NodeRoleType nodeRole;
     public static int nodeCount = 0;
+    private int nodeCountJson = 0;
     public static int masterNodeId = 0;
+    private int masterNodeIdJson = 0;
     public static List<Integer> proposerNodeIds = new ArrayList<>();
+    private List<Integer> proposerNodeIdsJson = new ArrayList<>();
     public static List<Integer> acceptorNodeIds = new ArrayList<>();
+    private List<Integer> acceptorNodeIdsJson = new ArrayList<>();
     public static int learnerNodeId;
+    private int learnerNodeIdJson;
 
-
-//    enum NodeRoleType {
-//        MASTER_NODE,
-//        PROPOSER_NODE,
-//        ACCEPTOR_NODE,
-//        LEARNER_NODE,
-//        UNDEFINED_NODE
-//    }
 
     public NodeRoleType getNodeRole() {
         return nodeRole;
@@ -97,4 +94,43 @@ public class WebSocketChatMessage {
         WebSocketChatMessage.learnerNodeId = learnerNodeId;
     }
 
+    public int getNodeCountJson() {
+        return nodeCountJson;
+    }
+
+    public void setNodeCountJson(int nodeCountJson) {
+        this.nodeCountJson = nodeCountJson;
+    }
+
+    public int getMasterNodeIdJson() {
+        return masterNodeIdJson;
+    }
+
+    public void setMasterNodeIdJson(int masterNodeIdJson) {
+        this.masterNodeIdJson = masterNodeIdJson;
+    }
+
+    public List<Integer> getProposerNodeIdsJson() {
+        return proposerNodeIdsJson;
+    }
+
+    public void setProposerNodeIdsJson(List<Integer> proposerNodeIdsJson) {
+        this.proposerNodeIdsJson = proposerNodeIdsJson;
+    }
+
+    public List<Integer> getAcceptorNodeIdsJson() {
+        return acceptorNodeIdsJson;
+    }
+
+    public void setAcceptorNodeIdsJson(List<Integer> acceptorNodeIdsJson) {
+        this.acceptorNodeIdsJson = acceptorNodeIdsJson;
+    }
+
+    public int getLearnerNodeIdJson() {
+        return learnerNodeIdJson;
+    }
+
+    public void setLearnerNodeIdJson(int learnerNodeIdJson) {
+        this.learnerNodeIdJson = learnerNodeIdJson;
+    }
 }

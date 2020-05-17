@@ -11,7 +11,10 @@ import org.springframework.stereotype.Controller;
 
 import com.javainuse.domain.WebSocketChatMessage;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -31,7 +34,6 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/chat.newUser")
-//    @SendTo("/topic/distributedComputing")
     public void addUser(@Payload WebSocketChatMessage webSocketChatMessage,
                         SimpMessageHeaderAccessor headerAccessor) {
         headerAccessor.getSessionAttributes().put("username", webSocketChatMessage.getSender());
@@ -41,16 +43,11 @@ public class WebSocketChatController {
         roleTypeHashMap.put(Integer.parseInt(webSocketChatMessage.getSender()), webSocketChatMessage.getNodeRole());
         messagingTemplate.convertAndSend("/topic/distributedComputing", webSocketChatMessage);
 
-
         try {
             TimeUnit.MILLISECONDS.sleep(4000);
             boolean masterNodeAssigned = checkMasterNodeAssigned();
 
             if (roleTypeHashMap.size() > 3 && !masterNodeAssigned) {
-                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                System.out.println(roleTypeHashMap);
-                System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-
                 try {
                     TimeUnit.MILLISECONDS.sleep(1000);
                     WebSocketChatMessage electionRequest = new WebSocketChatMessage();
@@ -60,14 +57,11 @@ public class WebSocketChatController {
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                 }
-
             }
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @MessageMapping("/chat.newNodeAddToAllNodes")
@@ -82,7 +76,6 @@ public class WebSocketChatController {
     public void addNodeToHashMap(@Payload WebSocketChatMessage webSocketChatMessage,
                                  SimpMessageHeaderAccessor headerAccessor) {
         roleTypeHashMap.put(Integer.parseInt(webSocketChatMessage.getSender()), webSocketChatMessage.getNodeRole());
-        System.out.println(roleTypeHashMap);
 
     }
 
@@ -91,26 +84,63 @@ public class WebSocketChatController {
     public void nodeRemoveFromAllNodes(@Payload WebSocketChatMessage webSocketChatMessage,
                                        SimpMessageHeaderAccessor headerAccessor) {
         roleTypeHashMap.remove(Integer.parseInt(webSocketChatMessage.getSender()));
+
     }
 
     @MessageMapping("/chat.startElectionRequest")
     public void startElectionRequest(@Payload WebSocketChatMessage webSocketChatMessage,
                                      SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("startElectionRequest   " + roleTypeHashMap);
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(new Random().nextInt(10) * 1000);
+            System.out.println("waiting time startElectionRequest");
+            if (!checkMasterNodeAssigned()) {
+
+                int masterNodeId = findMasterNodeId();
+                WebSocketChatMessage.masterNodeId = masterNodeId;
+
+                WebSocketChatMessage electionMasterNode = new WebSocketChatMessage();
+                electionMasterNode.setType("Master_Node_BroadCast");
+                electionMasterNode.setMasterNodeIdJson(masterNodeId);
+                electionMasterNode.setContent(NodeRoleType.MASTER_NODE.toString());
+                messagingTemplate.convertAndSend("/topic/distributedComputing", electionMasterNode);
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 
+    @MessageMapping("/chat.masterNodeDataAdding")
+    public void masterNodeDataAdding(@Payload WebSocketChatMessage webSocketChatMessage,
+                                     SimpMessageHeaderAccessor headerAccessor) {
+        roleTypeHashMap.put(webSocketChatMessage.getMasterNodeIdJson(), webSocketChatMessage.getNodeRole());
+    }
+
+
 
     public boolean checkMasterNodeAssigned() {
-
         roleTypeHashMap.forEach((k, v) -> {
             if (v.equals(NodeRoleType.MASTER_NODE)) {
                 hasMaster = true;
             }
         });
-        System.out.println("checkMasterNodeAssigned " +hasMaster);
         return hasMaster;
     }
 
+    public int findMasterNodeId() {
+        ArrayList<Integer> nodeIdList = new ArrayList<Integer>();
+        roleTypeHashMap.forEach((k, v) -> {
+            nodeIdList.add(k);
+        });
+        return Collections.max(nodeIdList);
+    }
+
+    @MessageMapping("/chat.testAnyFunction")
+    public void testAnyFunction(@Payload WebSocketChatMessage webSocketChatMessage,
+                                SimpMessageHeaderAccessor headerAccessor) {
+        System.out.println("all nodes======> "+roleTypeHashMap);
+    }
 
 }
