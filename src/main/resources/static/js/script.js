@@ -67,15 +67,17 @@ function onMessageReceived(payload) {
 
         }
         case 'Master_Node_BroadCast': {
-            console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            console.log(message)
-            console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            console.log('message.masterNodeId',message.masterNodeIdJson)
-            console.log('message.nodeRole',message.content)
+            console.log('*************************************************************')
+            console.log('master node broadcast', message)
+            console.log('#################################################################')
             masterNodeBroadCast(message);
+            setTimeout(acceptorNodeBroadCast(message),1000)
+            setTimeout(learnerNodeBroadCast(message),1000)
+            setTimeout(proposerNodeBroadCast(message),1000)
             break;
 
         }
+
 
     }
 
@@ -150,10 +152,49 @@ function masterNodeBroadCast(message) {
     if (stompClient) {
         var chatMessage = {
             masterNodeIdJson: message.masterNodeIdJson,
-            nodeRole: message.content
+            nodeRole: 'MASTER_NODE'
         };
 
-        stompClient.send("/app/chat.masterNodeDataAdding", {}, JSON
+        stompClient.send("/app/chat.masterNodeBroadCast", {}, JSON
+            .stringify(chatMessage));
+    }
+    event.preventDefault();
+}
+
+function acceptorNodeBroadCast(message) {
+    if (stompClient) {
+        var chatMessage = {
+            acceptorNodeIdsJson: message.acceptorNodeIdsJson,
+            nodeRole: 'ACCEPTOR_NODE'
+        };
+
+        stompClient.send("/app/chat.acceptorNodeBroadCast", {}, JSON
+            .stringify(chatMessage));
+    }
+    event.preventDefault();
+}
+
+function learnerNodeBroadCast(message) {
+    if (stompClient) {
+        var chatMessage = {
+            learnerNodeIdJson: message.learnerNodeIdJson,
+            nodeRole: 'LEARNER_NODE'
+        };
+
+        stompClient.send("/app/chat.learnerNodeBroadCast", {}, JSON
+            .stringify(chatMessage));
+    }
+    event.preventDefault();
+}
+
+function proposerNodeBroadCast(message) {
+    if (stompClient) {
+        var chatMessage = {
+            proposerNodeIdsJson: message.proposerNodeIdsJson,
+            nodeRole: 'PROPOSER_NODE'
+        };
+
+        stompClient.send("/app/chat.proposerNodeBroadCast", {}, JSON
             .stringify(chatMessage));
     }
     event.preventDefault();
@@ -259,8 +300,7 @@ function masterNodeBroadCast(message) {
 function testAnyFunction() {
 
     if (stompClient) {
-        var chatMessage = {
-        };
+        var chatMessage = {};
 
         stompClient.send("/app/chat.testAnyFunction", {}, JSON
             .stringify(chatMessage));
