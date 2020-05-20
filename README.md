@@ -1,3 +1,6 @@
+first install rabbitmq 
+==========================
+
 open terminals and run following commands
 ====================
 java -jar app.jar --server.port=8080
