@@ -261,10 +261,13 @@ public class WebSocketChatController {
 //            e.printStackTrace();
 //        }
 
-        numberListInFile.add(5);
-        numberListInFile.add(6);
-        numberListInFile.add(7);
-        numberListInFile.add(8);
+        numberListInFile.add(73000);
+        numberListInFile.add(16427);
+        numberListInFile.add(16487);
+        numberListInFile.add(63973);
+        numberListInFile.add(63972);
+        numberListInFile.add(31957);
+        numberListInFile.add(62012);
         System.out.println("numberListInFile ============================================================= : " + numberListInFile);
         return numberListInFile;
     }
@@ -298,11 +301,17 @@ public class WebSocketChatController {
 
 //            numberListWithResult.put(acceptorInMessageFromProposer.getNumber(),acceptorInMessageFromProposer.isLearnerFinalResult());
         } else {
-//            numberListWithResult.put(acceptorInMessageFromProposer.getNumber(),acceptorInMessageFromProposer.isLearnerFinalResult());
-//            FinalResultsOfNumbers finalResultsOfNumbers = new FinalResultsOfNumbers();
-//            finalResultsOfNumbers.setMasterNodeId(findMasterNodeId());
-//            finalResultsOfNumbers.setType("Publish_Final_result_On_Master");
-//            finalResultsOfNumbers.setResultListOfNumbers(numberListWithResult);
+            numberListWithResult.put(acceptorInMessageFromProposer.getNumber(),acceptorInMessageFromProposer.isLearnerFinalResult());
+            numberListWithResult.remove(0);
+            List<FinalResult> finalResults= new ArrayList<>();
+            numberListWithResult.forEach((k,v)->{
+                finalResults.add(new FinalResult(k,v));
+            });
+
+            FinalResultsOfNumbers finalResultsOfNumbers = new FinalResultsOfNumbers();
+            finalResultsOfNumbers.setMasterNodeId(findMasterNodeId());
+            finalResultsOfNumbers.setType("Publish_Final_result_On_Master");
+            finalResultsOfNumbers.setResultListOfNumbers(finalResults);
             System.out.println(" finish finding all numbers");
             numberListWithResult.forEach((k,v)->{
                 if (v) {
@@ -313,7 +322,7 @@ public class WebSocketChatController {
 
                 }
             });
-//            messagingTemplate.convertAndSend("/topic/distributedComputing", finalResultsOfNumbers);
+            messagingTemplate.convertAndSend("/topic/distributedComputing", finalResultsOfNumbers);
 
         }
 

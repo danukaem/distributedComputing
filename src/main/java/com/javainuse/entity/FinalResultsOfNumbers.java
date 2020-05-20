@@ -3,6 +3,7 @@ package com.javainuse.entity;
 import lombok.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Setter
 @Getter
@@ -11,9 +12,10 @@ import java.util.HashMap;
 @ToString
 public class FinalResultsOfNumbers {
 
-    HashMap<Integer,Boolean> resultListOfNumbers;
+    List<FinalResult> resultListOfNumbers;
     String type;
     int masterNodeId;
+
 
 
 

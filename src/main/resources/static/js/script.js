@@ -110,13 +110,14 @@ function onMessageReceived(payload) {
             break;
 
         }
-        // case 'Publish_Final_result_On_Master': {
-        //     if (nodeId === message.masterNodeId) {
-        //       publishResultsOfNumbers(message);
-        //     }
-        //     break;
-        //
-        // }
+        case 'Publish_Final_result_On_Master': {
+            if (nodeId === message.masterNodeId) {
+                console.log("resultssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",message)
+              publishResultsOfNumbers(message);
+            }
+            break;
+
+        }
 
 
     }
@@ -273,7 +274,7 @@ function continueFindingPrimeNumberCommandToMaster(message) {
         stompClient.send("/app/chat.startFindingPrimeNumberCommandToMaster", {}, JSON
             .stringify(chatMessage));
     }
-    console.log("########################################################################## : 1 :", chatMessage)
+    console.log("########################################################################## : 1 a:", chatMessage)
 
     event.preventDefault();
 
@@ -432,7 +433,7 @@ function publishResultsOfNumbers(message){
 
     for(var i=0;i<message.resultListOfNumbers.length;i++){
         var textElement = document.createElement('p');
-        var messageText = document.createTextNode(message.resultListOfNumbers[i]);
+        var messageText = document.createTextNode(message.resultListOfNumbers[i].number + ' is  a prime number : '+message.resultListOfNumbers[i].prime);
         textElement.appendChild(messageText);
         messageElement.appendChild(textElement);
     }
