@@ -250,24 +250,24 @@ public class WebSocketChatController {
     public List<Integer> readNumberInLineFromFile() {
         List<Integer> numberListInFile = new ArrayList<>();
 
-//        try {
-//            File file = new File("primeNumbersCheck.txt");
-//            Scanner scanner = new Scanner(file);
-//
-//            while (scanner.hasNextLine()) {
-//                numberListInFile.add(Integer.parseInt(scanner.nextLine()));
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            File file = new File("primeNumbersCheck.txt");
+            Scanner scanner = new Scanner(file);
 
-        numberListInFile.add(73000);
-        numberListInFile.add(16427);
-        numberListInFile.add(16487);
-        numberListInFile.add(63973);
-        numberListInFile.add(63972);
-        numberListInFile.add(31957);
-        numberListInFile.add(62012);
+            while (scanner.hasNextLine()) {
+                numberListInFile.add(Integer.parseInt(scanner.nextLine()));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+//        numberListInFile.add(73000);
+//        numberListInFile.add(16427);
+//        numberListInFile.add(16487);
+//        numberListInFile.add(63973);
+//        numberListInFile.add(63972);
+//        numberListInFile.add(31957);
+//        numberListInFile.add(62012);
         System.out.println("numberListInFile ============================================================= : " + numberListInFile);
         return numberListInFile;
     }

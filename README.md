@@ -1,5 +1,8 @@
 first install rabbitmq 
 ==========================
+next build your project and rename as app.jar
+
+after that you should create copy "primeNumbersCheck.txt" file from root and paste it on target folder.
 
 open terminals and run following commands
 ====================
