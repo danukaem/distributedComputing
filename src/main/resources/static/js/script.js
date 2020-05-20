@@ -112,8 +112,8 @@ function onMessageReceived(payload) {
         }
         case 'Publish_Final_result_On_Master': {
             if (nodeId === message.masterNodeId) {
-                console.log("resultssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",message)
-              publishResultsOfNumbers(message);
+                console.log("resultssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss", message)
+                publishResultsOfNumbers(message);
             }
             break;
 
@@ -189,6 +189,11 @@ function startElectionRequest() {
 }
 
 function masterNodeBroadCast(message) {
+    if (nodeId === message.masterNodeIdJson) {
+        nodeRole = 'MASTER_NODE';
+        var nRole = document.createTextNode(nodeRole);
+        document.querySelector('#nodeRole').appendChild(nRole);
+    }
     if (stompClient) {
         var chatMessage = {
             masterNodeIdJson: message.masterNodeIdJson,
@@ -202,6 +207,13 @@ function masterNodeBroadCast(message) {
 }
 
 function acceptorNodeBroadCast(message) {
+
+    if (nodeId === message.acceptorNodeIdsJson[0] || nodeId === message.acceptorNodeIdsJson[1]) {
+        nodeRole = 'ACCEPTOR_NODE';
+        var nRole = document.createTextNode(nodeRole);
+        document.querySelector('#nodeRole').appendChild(nRole);
+    }
+
     if (stompClient) {
         var chatMessage = {
             acceptorNodeIdsJson: message.acceptorNodeIdsJson,
@@ -216,6 +228,11 @@ function acceptorNodeBroadCast(message) {
 }
 
 function learnerNodeBroadCast(message) {
+    if (nodeId === message.learnerNodeIdJson) {
+        nodeRole = 'LEARNER_NODE';
+        var nRole = document.createTextNode(nodeRole);
+        document.querySelector('#nodeRole').appendChild(nRole);
+    }
     if (stompClient) {
         var chatMessage = {
             learnerNodeIdJson: message.learnerNodeIdJson,
@@ -229,6 +246,14 @@ function learnerNodeBroadCast(message) {
 }
 
 function proposerNodeBroadCast(message) {
+    for (var n = 0; n < message.proposerNodeIdsJson.length; n++) {
+        if (nodeId === message.proposerNodeIdsJson[n]) {
+            nodeRole = 'PROPOSER_NODE';
+            var nRole = document.createTextNode(nodeRole);
+            document.querySelector('#nodeRole').appendChild(nRole);
+        }
+    }
+
     if (stompClient) {
         var chatMessage = {
             proposerNodeIdsJson: message.proposerNodeIdsJson,
@@ -423,17 +448,13 @@ function IfThisLearnerNodeSendToMaster(message) {
     }
 
 }
-function publishResultsOfNumbers(message){
-    console.log("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ",message)
-    var messageElement = document.createElement('li');
-    // var textElement = document.createElement('p');
-    // var messageText = document.createTextNode("aaaaaaaaaaaaaaaaaaa");
-    // textElement.appendChild(messageText);
-    // messageElement.appendChild(textElement);
 
-    for(var i=0;i<message.resultListOfNumbers.length;i++){
+function publishResultsOfNumbers(message) {
+    console.log("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ", message)
+    var messageElement = document.createElement('li');
+    for (var i = 0; i < message.resultListOfNumbers.length; i++) {
         var textElement = document.createElement('p');
-        var messageText = document.createTextNode(message.resultListOfNumbers[i].number + ' is  a prime number : '+message.resultListOfNumbers[i].prime);
+        var messageText = document.createTextNode(message.resultListOfNumbers[i].number + ' is  a prime number : ' + message.resultListOfNumbers[i].prime);
         textElement.appendChild(messageText);
         messageElement.appendChild(textElement);
     }
@@ -542,12 +563,14 @@ function publishResultsOfNumbers(message){
 //     xhttp.send();
 // }
 function testAnyFunction() {
-
-    if (stompClient) {
-        var chatMessage = {};
-
-        stompClient.send("/app/chat.testAnyFunction", {}, JSON
-            .stringify(chatMessage));
-    }
-    event.preventDefault();
+// console.log("document.getElementById(\"#myfile\").value()" ,document.getElementById("myfile").value)
+// console.log("document.getElementById(\"#myfile\").value()" ,document.getElementById("myfile").size)
+    alert('nodeRole : '+nodeRole +' and nodeId :'+nodeId)
+    // if (stompClient) {
+    //     var chatMessage = {};
+    //
+    //     stompClient.send("/app/chat.testAnyFunction", {}, JSON
+    //         .stringify(chatMessage));
+    // }
+    // event.preventDefault();
 }

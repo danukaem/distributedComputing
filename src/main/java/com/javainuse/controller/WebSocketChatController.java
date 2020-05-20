@@ -261,13 +261,6 @@ public class WebSocketChatController {
             e.printStackTrace();
         }
 
-//        numberListInFile.add(73000);
-//        numberListInFile.add(16427);
-//        numberListInFile.add(16487);
-//        numberListInFile.add(63973);
-//        numberListInFile.add(63972);
-//        numberListInFile.add(31957);
-//        numberListInFile.add(62012);
         System.out.println("numberListInFile ============================================================= : " + numberListInFile);
         return numberListInFile;
     }
