@@ -49,13 +49,13 @@ public class WebSocketChatEventListener {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
                 if (WebSocketChatController.roleTypeHashMap.size() > minimumNodes) {
-                    if(nodeRoleType == NodeRoleType.MASTER_NODE ||nodeRoleType == NodeRoleType.ACCEPTOR_NODE|| nodeRoleType == NodeRoleType.LEARNER_NODE){
+                    if (nodeRoleType == NodeRoleType.MASTER_NODE || nodeRoleType == NodeRoleType.ACCEPTOR_NODE || nodeRoleType == NodeRoleType.LEARNER_NODE) {
                         WebSocketChatMessage electionRequest = new WebSocketChatMessage();
                         electionRequest.setType("Start_Election_Request");
                         messagingTemplate.convertAndSend("/topic/distributedComputing", electionRequest);
                     }
 
-                }else if(nodeRoleType == NodeRoleType.MASTER_NODE && WebSocketChatController.roleTypeHashMap.size() < minimumNodes){
+                } else if (nodeRoleType == NodeRoleType.MASTER_NODE && WebSocketChatController.roleTypeHashMap.size() < minimumNodes) {
                     System.out.println("cancel the process until fulfill the minimum nodes");
                 }
             } catch (InterruptedException e) {

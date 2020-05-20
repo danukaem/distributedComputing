@@ -7,7 +7,10 @@ var stompClient = null;
 var nodeId = null;
 var nodeCount = 0;
 var nodeRole = "UNDEFINED_NODE";
-var masterNodeId = '';
+var masterNodeId;
+var acceptorNodeIds = [];
+var proposerNodeIds = [];
+var learnerNodeId;
 
 function connect(event) {
 
@@ -42,7 +45,6 @@ function disconnect() {
 }
 
 function onMessageReceived(payload) {
-
     var message = JSON.parse(payload.body);
     var messageElement = document.createElement('li');
 
@@ -67,16 +69,54 @@ function onMessageReceived(payload) {
 
         }
         case 'Master_Node_BroadCast': {
-            console.log('*************************************************************')
-            console.log('master node broadcast', message)
-            console.log('#################################################################')
-            masterNodeBroadCast(message);
-            setTimeout(acceptorNodeBroadCast(message),1000)
-            setTimeout(learnerNodeBroadCast(message),1000)
-            setTimeout(proposerNodeBroadCast(message),1000)
+            setTimeout(masterNodeBroadCast(message), 500);
+            setTimeout(acceptorNodeBroadCast(message), 500);
+            setTimeout(learnerNodeBroadCast(message), 500);
+            setTimeout(proposerNodeBroadCast(message), 500);
+            if (nodeId === message.masterNodeIdJson) {
+                var tempMessage = {
+                    nodeRole: "MASTER_NODE",
+                    iterationNumber: 0
+                }
+                startFindingPrimeNumberCommandToMaster(tempMessage);
+            }
+            break;
+        }
+        case 'number_And_Details_From_Master': {
+            console.log("message**********************************************************")
+            console.log(message)
+            console.log("message**********************************************************")
+            IfThisProposerNodeCheckNumberIsPrime(message);
             break;
 
         }
+        case 'Acceptor_Receive_Data_From_Proposer': {
+            IfThisAcceptorNodeSendToLearner(message);
+            break;
+
+        }
+        case 'Acceptor_Result': {
+            IfThisLearnerNodeSendToMaster(message);
+            break;
+
+        }
+        case 'Learner_To_Master_Continue_Iteration': {
+            console.log("00000000000000000000000000000000000000000000000000000000first saved nodeRole : ", nodeId)
+            console.log("00000000000000000000000000000000000000000000000000000000first saved nodeRole : ", message.masterNodeId)
+
+            if (message.masterNodeId === nodeId) {
+                continueFindingPrimeNumberCommandToMaster(message);
+            }
+            break;
+
+        }
+        // case 'Publish_Final_result_On_Master': {
+        //     if (nodeId === message.masterNodeId) {
+        //       publishResultsOfNumbers(message);
+        //     }
+        //     break;
+        //
+        // }
 
 
     }
@@ -147,14 +187,13 @@ function startElectionRequest() {
     event.preventDefault();
 }
 
-
 function masterNodeBroadCast(message) {
     if (stompClient) {
         var chatMessage = {
             masterNodeIdJson: message.masterNodeIdJson,
             nodeRole: 'MASTER_NODE'
         };
-
+        masterNodeId = message.masterNodeIdJson;
         stompClient.send("/app/chat.masterNodeBroadCast", {}, JSON
             .stringify(chatMessage));
     }
@@ -167,7 +206,8 @@ function acceptorNodeBroadCast(message) {
             acceptorNodeIdsJson: message.acceptorNodeIdsJson,
             nodeRole: 'ACCEPTOR_NODE'
         };
-
+        acceptorNodeIds.push(message.acceptorNodeIdsJson[0]);
+        acceptorNodeIds.push(message.acceptorNodeIdsJson[1]);
         stompClient.send("/app/chat.acceptorNodeBroadCast", {}, JSON
             .stringify(chatMessage));
     }
@@ -180,7 +220,7 @@ function learnerNodeBroadCast(message) {
             learnerNodeIdJson: message.learnerNodeIdJson,
             nodeRole: 'LEARNER_NODE'
         };
-
+        learnerNodeId = message.learnerNodeIdJson;
         stompClient.send("/app/chat.learnerNodeBroadCast", {}, JSON
             .stringify(chatMessage));
     }
@@ -194,11 +234,214 @@ function proposerNodeBroadCast(message) {
             nodeRole: 'PROPOSER_NODE'
         };
 
+        for (var i = 0; i < message.proposerNodeIdsJson.length; i++) {
+            proposerNodeIds.push(message.proposerNodeIdsJson[i]);
+        }
+
         stompClient.send("/app/chat.proposerNodeBroadCast", {}, JSON
             .stringify(chatMessage));
     }
     event.preventDefault();
 }
+
+function startFindingPrimeNumberCommandToMaster(message) {
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx : 1 :", message)
+
+    if (stompClient) {
+        var chatMessage = {
+            nodeRole: message.nodeRole,
+            iterationNumber: message.iterationNumber
+        };
+        stompClient.send("/app/chat.startFindingPrimeNumberCommandToMaster", {}, JSON
+            .stringify(chatMessage));
+    }
+    console.log("########################################################################## : 1 :", chatMessage)
+
+    event.preventDefault();
+}
+
+function continueFindingPrimeNumberCommandToMaster(message) {
+    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx : 1new :", message)
+
+    if (stompClient) {
+        var chatMessage = {
+            nodeRole: message.nodeRole,
+            iterationNumber: message.iterationNumber,
+            number: message.number,
+            learnerFinalResult: message.learnerFinalResult
+        };
+        stompClient.send("/app/chat.startFindingPrimeNumberCommandToMaster", {}, JSON
+            .stringify(chatMessage));
+    }
+    console.log("########################################################################## : 1 :", chatMessage)
+
+    event.preventDefault();
+
+}
+
+function IfThisProposerNodeCheckNumberIsPrime(message) {
+    var rangeWithNodeId = message.rangeWithNodeId;
+    for (var i = 0; i < rangeWithNodeId.length; i++) {
+        if (nodeId === rangeWithNodeId[i].nodeId) {
+            divideNumberByValueBitweenRange(message.number, rangeWithNodeId[i].startValue, rangeWithNodeId[i].endValue, message.iterationNumber);
+            console.log("########################################################################## : 2 : ", message)
+        }
+    }
+
+}
+
+function divideNumberByValueBitweenRange(number, startValue, endValue, iterationNumber) {
+    var factorList = [];
+    var proposerNodeId = nodeId;
+    var acceptorNodeId = acceptorNodeIds[Math.floor(Math.random() * Math.floor(2))];
+    console.log("#########acceptorNodeId###########acceptorNodeId###################################################### :", acceptorNodeId)
+
+    var nodeRole = nodeRole;
+    for (var i = startValue; i <= endValue; i++) {
+        if (number % i === 0) {
+            factorList.push(i);
+            console.log("########################################################################## : 3 : ", factorList)
+
+        }
+    }
+    if (stompClient) {
+        var acceptorInMessageFromProposer = {
+            number: number,
+            startValue: startValue,
+            endValue: endValue,
+            factorList: factorList,
+            proposerNodeId: proposerNodeId,
+            acceptorNodeId: acceptorNodeId,
+            iterationNumber: iterationNumber,
+            learnerNodeId: learnerNodeId,
+            nodeRole: nodeRole,
+            type: "Acceptor_Receive_Data_From_Proposer"
+        };
+        stompClient.send("/app/chat.numberDataToAcceptor", {}, JSON
+            .stringify(acceptorInMessageFromProposer));
+    }
+    event.preventDefault();
+
+}
+
+function IfThisAcceptorNodeSendToLearner(message) {
+    if (nodeId === message.acceptorNodeId) {
+        console.log("########################################################################## : 4 ", message)
+
+        var number = message.number;
+        var startValue = message.startValue;
+        var endValue = message.endValue;
+        var factorList = message.factorList;
+        var proposerNodeId = message.proposerNodeId;
+        var acceptorNodeId = message.acceptorNodeId;
+        var learnerNodeId = message.learnerNodeId;
+        var iterationNumber = message.iterationNumber;
+        var nodeRole = message.nodeRole;
+        var type = "Acceptor_Result";
+
+        var acceptorFinalResult = true;
+        for (var i = 0; i < factorList.length; i++) {
+            if (factorList[i] !== 1 && factorList[i] !== number) {
+                acceptorFinalResult = false;
+                console.log("########################################################################## : 5 ", acceptorFinalResult)
+
+            }
+        }
+
+        if (stompClient) {
+            var acceptorOutMessageToLearner = {
+                number: number,
+                startValue: startValue,
+                endValue: endValue,
+                factorList: factorList,
+                proposerNodeId: proposerNodeId,
+                acceptorNodeId: acceptorNodeId,
+                learnerNodeId: learnerNodeId,
+                iterationNumber: iterationNumber,
+                nodeRole: nodeRole,
+                type: type,
+                acceptorFinalResult: acceptorFinalResult
+            };
+            console.log("########################################################################## : 5a ", acceptorOutMessageToLearner)
+
+            stompClient.send("/app/chat.numberDataToLearner", {}, JSON
+                .stringify(acceptorOutMessageToLearner));
+        }
+        event.preventDefault();
+
+    }
+
+}
+
+var acceptorFinalResults = [];
+var learnerFinalResult = true;
+var factorListAll = [];
+
+function IfThisLearnerNodeSendToMaster(message) {
+
+    if (nodeId === message.learnerNodeId) {
+        console.log("########################################################################## : 6 ", message)
+
+        acceptorFinalResults.push({
+            proposerNodeId: message.proposerNodeId,
+            acceptorFinalResult: message.acceptorFinalResult
+        });
+        for (var f = 0; f < message.factorList.length; f++) {
+            factorListAll.push(message.factorList[f]);
+            console.log("########################################################################## : 7 ", factorListAll)
+        }
+
+        if (acceptorFinalResults.length === proposerNodeIds.length) {
+            for (var i = 0; i < acceptorFinalResults.length; i++) {
+                if (!acceptorFinalResults[i].acceptorFinalResult) {
+                    learnerFinalResult = false;
+                    console.log("########################################################################## : 8 ", learnerFinalResult)
+
+                }
+            }
+
+            if (stompClient) {
+                var chatMessage = {
+                    nodeRole: 'MASTER_NODE',
+                    number: message.number,
+                    iterationNumber: parseInt(message.iterationNumber) + 1,
+                    factorList: factorListAll,
+                    type: "Learner_To_Master_Continue_Iteration",
+                    learnerFinalResult: learnerFinalResult
+                };
+                console.log("########################################################################## : 8a ", chatMessage)
+
+                stompClient.send("/app/chat.finalResultToLearner", {}, JSON
+                    .stringify(chatMessage));
+                event.preventDefault();
+                acceptorFinalResults = [];
+                learnerFinalResult = true;
+                factorListAll = [];
+            }
+        }
+    }
+
+}
+function publishResultsOfNumbers(message){
+    console.log("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy ",message)
+    var messageElement = document.createElement('li');
+    // var textElement = document.createElement('p');
+    // var messageText = document.createTextNode("aaaaaaaaaaaaaaaaaaa");
+    // textElement.appendChild(messageText);
+    // messageElement.appendChild(textElement);
+
+    for(var i=0;i<message.resultListOfNumbers.length;i++){
+        var textElement = document.createElement('p');
+        var messageText = document.createTextNode(message.resultListOfNumbers[i]);
+        textElement.appendChild(messageText);
+        messageElement.appendChild(textElement);
+    }
+
+    document.querySelector('#messageList').appendChild(messageElement);
+    document.querySelector('#messageList').scrollTop = document
+        .querySelector('#messageList').scrollHeight;
+}
+
 
 ////////////////////////////////////sample
 // function httpGet(x) {
