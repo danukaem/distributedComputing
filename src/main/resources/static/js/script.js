@@ -348,6 +348,14 @@ function divideNumberByValueBitweenRange(number, startValue, endValue, iteration
     }
     event.preventDefault();
 
+    var messageElement = document.createElement('li');
+    var textElement = document.createElement('p');
+    var rangeDetailsElement = document.createTextNode(number + ' is divided by values between ' + startValue + " to " + endValue);
+    textElement.appendChild(rangeDetailsElement);
+    messageElement.appendChild(textElement);
+    document.querySelector('#messageList').appendChild(messageElement);
+
+
 }
 
 function IfThisAcceptorNodeSendToLearner(message) {
@@ -395,6 +403,17 @@ function IfThisAcceptorNodeSendToLearner(message) {
         }
         event.preventDefault();
 
+        var messageElement = document.createElement('li');
+        var textElement = document.createElement('p');
+        var proposerResultElement = document.createTextNode(' acceptor received details from proposer node: ' + proposerNodeId +"\n");
+        var acceptorResultElement = document.createTextNode(number +' has factors between '+ startValue +' to '+ endValue + ' : '+ acceptorFinalResult  );
+        textElement.appendChild(proposerResultElement);
+        textElement.appendChild(acceptorResultElement);
+        messageElement.appendChild(textElement);
+        document.querySelector('#messageList').appendChild(messageElement);
+
+
+
     }
 
 }
@@ -440,6 +459,14 @@ function IfThisLearnerNodeSendToMaster(message) {
                 stompClient.send("/app/chat.finalResultToLearner", {}, JSON
                     .stringify(chatMessage));
                 event.preventDefault();
+
+                var messageElement = document.createElement('li');
+                var textElement = document.createElement('p');
+                var proposerResultElement = document.createTextNode('final result is taken by learner ::: '+message.number +" is prime number :"+  learnerFinalResult );
+                textElement.appendChild(proposerResultElement);
+                messageElement.appendChild(textElement);
+                document.querySelector('#messageList').appendChild(messageElement);
+
                 acceptorFinalResults = [];
                 learnerFinalResult = true;
                 factorListAll = [];
@@ -565,7 +592,7 @@ function publishResultsOfNumbers(message) {
 function testAnyFunction() {
 // console.log("document.getElementById(\"#myfile\").value()" ,document.getElementById("myfile").value)
 // console.log("document.getElementById(\"#myfile\").value()" ,document.getElementById("myfile").size)
-    alert('nodeRole : '+nodeRole +' and nodeId :'+nodeId)
+    alert('nodeRole : ' + nodeRole + ' and nodeId :' + nodeId)
     // if (stompClient) {
     //     var chatMessage = {};
     //
