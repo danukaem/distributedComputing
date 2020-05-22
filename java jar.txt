@@ -3,3 +3,11 @@ java -jar app.jar --server.port=8082
 java -jar app.jar --server.port=8083
 java -jar app.jar --server.port=8084
 java -jar app.jar --server.port=8085
+
+
+
+*Paxos for consensus
+
+*Should be able to spawn a new node and in the next iteration the master should identify this new
+node and consider it during scheduling.
+

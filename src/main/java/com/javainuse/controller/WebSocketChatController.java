@@ -1,7 +1,6 @@
 package com.javainuse.controller;
 
 import com.javainuse.domain.MasterNodeTasks;
-import com.javainuse.domain.NumberRangeWithNodes;
 import com.javainuse.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +10,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
-
 import com.javainuse.domain.WebSocketChatMessage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -92,7 +88,7 @@ public class WebSocketChatController {
                                      SimpMessageHeaderAccessor headerAccessor) {
 
         try {
-            TimeUnit.MILLISECONDS.sleep(new Random().nextInt(10) * 1000);
+            TimeUnit.MILLISECONDS.sleep((5 + new Random().nextInt(15)) * 1000);
             System.out.println("waiting time startElectionRequest");
             if (!checkMasterNodeAssigned()) {
                 int masterNodeId = new MasterNodeTasks().findMasterNodeId();
