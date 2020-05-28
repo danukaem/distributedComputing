@@ -52,7 +52,7 @@ public class MasterNodeTasks {
     public List<Integer> readNumberInLineFromFile() {
         List<Integer> numberListInFile = new ArrayList<>();
         try {
-            File file = new File("primeNumbersCheck.txt");
+            File file = new File("numberList.txt");
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 numberListInFile.add(Integer.parseInt(scanner.nextLine()));
